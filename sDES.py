@@ -50,13 +50,13 @@ class sDES:
     permutedBlock = initialPermutation(block)
     # Block split
     left, right = permutedBlock[:4], permutedBlock[4:]
-    # Mixing function
-    mixinRes = self.mixingFunction(key1, left)
+    # Feistel Operation
+    mixinRes = self.mixingFunction(key1, right)
     # Left XOR mixinRes
     xor = [ a ^ int(b)  for a, b in zip(mixinRes, left)]
     # Side switching
     left, right = right, xor
-    # Mixing function
+    # Feistel Operation
     mixinRes = self.mixingFunction(key2, list(map( lambda i: str(i),right)))
     # Left XOR mixinRes
     xor = [ str(a ^ int(b))  for a, b in zip(mixinRes, left)]
