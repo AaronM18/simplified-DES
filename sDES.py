@@ -6,7 +6,7 @@ def getInput(lines = []):
   return [ line.strip('\n') for line in fileinput.input() ]
 
 class sDES:
-  parseInt = lambda self, bit : int(bit)
+  parseToInt = lambda self, bit : int(bit)
 
   def subKeys(self, key: str) -> list:
     # Subkeys Permutations & extraction
@@ -24,7 +24,7 @@ class sDES:
     # The 4-bit block expansion to 8-bits
     expandedBlock = expandBlock(block)
     # Parse str bits to int bits
-    subKey, expandedBlock = map(self.parseInt, subKey), map(self.parseInt, expandedBlock)
+    subKey, expandedBlock = map(self.parseToInt, subKey), map(self.parseToInt, expandedBlock)
     # XOR between subkey and expanded block
     xor = [ str(a ^ b) for a, b in zip(subKey, expandedBlock)]
     # Bits 0+3 and 1+2 are used as input to S0; bits 4+7 and 5+6 as input for S1
@@ -33,7 +33,7 @@ class sDES:
     # S-Box value  extraction
     sBoxValue = [ S0[row0][column0], S1[row1][column1]]
     # The outputs of S0 and S1 are converted to its binary value, concatenated and permuted
-    sBoxValue = [ "%02d" % bit for bit in sBoxValue]
+    sBoxValue = [ "{:02b}".format(bit) for bit in sBoxValue]
     sBoxValue = (lambda l: [ int(item) for sublist in l for item in sublist ])([binary for binary in sBoxValue])
     # Final permutation
     sBoxValue = [ sBoxValue[1], sBoxValue[3], sBoxValue[2], sBoxValue[0] ]
@@ -50,17 +50,20 @@ class sDES:
     permutedBlock = initialPermutation(block)
     # Block split
     left, right = permutedBlock[:4], permutedBlock[4:]
-    print(left)
+    # Mixing function
     mixinRes = self.mixingFunction(key1, left)
+    # Left XOR mixinRes
     xor = [ a ^ int(b)  for a, b in zip(mixinRes, left)]
-
+    # Side switching
     left, right = right, xor
-    print(right)
+    # Mixing function
     mixinRes = self.mixingFunction(key2, list(map( lambda i: str(i),right)))
-    xor = [ a ^ int(b)  for a, b in zip(mixinRes, left)]
-    print(mixinRes)
-    
-    pass
+    # Left XOR mixinRes
+    xor = [ str(a ^ int(b))  for a, b in zip(mixinRes, left)]
+    # Concatenation & inverse permutation
+    res = inversePermutation(xor + list(map( lambda i: str(i),right)))
+
+    return "".join(res)
 
   def encrypt(self, key: str, message: str) -> str:
     key1, key2 = self.subKeys(key)
@@ -80,11 +83,13 @@ def main():
   text = lines[2]
 
   if op == 'E':
-    sDes.encrypt(key, text)
+    r = sDes.encrypt(key, text)
   elif op == 'D':
-    sDes.decrypt(key, text)
+    r = sDes.decrypt(key, text)
   else:
     print('Wrong op')
+
+  print(r)
   
 
 main() if __name__ == "__main__" else None
