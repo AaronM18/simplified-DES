@@ -1,3 +1,9 @@
+"""
+ Criptografía FI, UNAM
+ Aarón Mejia Ortiz
+ 25.2.2020
+ """
+
 def getInput(lines = []):
   """ 
     Gets input from file input. Returns list of lines from input file
